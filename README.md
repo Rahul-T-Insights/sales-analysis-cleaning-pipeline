@@ -1,4 +1,4 @@
-# Retail Sales Data Cleaning Pipeline using Python
+# Sales Data Cleaning Pipeline using Python
 
 ## Project Overview
 
