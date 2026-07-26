@@ -36,6 +36,14 @@ print(sales.isnull().sum())
 # Find duplicates, count and delete duplicate
 
 print(sales.duplicated().sum())
+print(sales["Product_ID"].isnull().sum())
+sales = sales.dropna(subset=["Product_ID"])
+
+# Analyze missing data
+
+print("\nMissing values")
+missing_percentage = (sales.isnull().sum() / len(sales))*100
+print(missing_percentage.sort_values(ascending = False))
 
 # convert datetime
 
@@ -80,23 +88,27 @@ sales.loc[
 
 # Handling missing values
 
+sales["Customer_Name"] = sales["Customer_Name"].fillna("Unknown")
 sales["Customer_ID"] = sales["Customer_ID"].fillna("Unknown")
+sales["City"] = sales["City"].fillna("Unknown")
+sales["Gender"] = sales["Gender"].fillna("Unknown")
+sales["State"] = sales["State"].fillna("Unknown")
 
 median_age = sales["Age"].median()
 sales["Age"] =sales["Age"].fillna(median_age)
-
-sales["City"] = sales["City"].fillna("Unknown")
 
 sales["Unit_Price"] = sales.groupby("Product")["Unit_Price"].transform(
     lambda x : x.fillna(x.median())
 )
 
-sales["Gender"] = sales["Gender"].fillna("Unknown")
-
-sales["State"] = sales["State"].fillna("Unknown")
-
 median_qty = sales["Quantity"].median()
 sales["Quantity"] = sales["Quantity"].fillna(median_qty)
+
+# verify
+
+print(sales.head())
+print(sales.isnull().sum())
+print(sales.shape)
 
 # import file
 
