@@ -2,43 +2,70 @@
 
 ## Overview
 
-This project demonstrates an end-to-end **data cleaning pipeline** using **Python, Pandas, and NumPy**. Three raw retail datasets (**Customers, Orders, and Products**) were merged into a unified dataset, cleaned using business rules, standardized for consistency, and prepared for downstream analytics.
-
-The final cleaned dataset contains **9,825 records** and is ready for exploratory data analysis, SQL queries, dashboard development, and business reporting.
+This project demonstrates an end-to-end **data cleaning pipeline** built using **Python, Pandas, and NumPy**. Three raw retail datasets (**Customers, Orders, and Products**) were merged into a single retail sales dataset, cleaned using business rules, standardized, and exported as an analysis-ready dataset.
 
 ---
 
-## Dataset
+# Dataset Summary
 
-The project uses three Excel datasets:
+## Input Files
 
-* **Customers.xlsx**
-* **Orders.xlsx**
-* **Products.xlsx**
+* Customers.xlsx
+* Orders.xlsx
+* Products.xlsx
 
-These were merged using **left joins** on `Customer_ID` and `Product_ID`.
+## Dataset Size
+
+### Before Cleaning
+
+* **Rows:** 10,000
+* **Columns:** 16
+
+### After Cleaning
+
+* **Rows:** 9,825
+* **Columns:** 16
 
 ---
 
-## Technologies Used
+# Data Quality Summary
 
-* Python
-* Pandas
-* NumPy
-* Microsoft Excel
+| Metric                |                Before |                      After |
+| --------------------- | --------------------: | -------------------------: |
+| Total Records         |                10,000 |                      9,825 |
+| Missing Customer_ID   |                   497 |                          0 |
+| Missing Product_ID    |                   175 |         0 *(rows removed)* |
+| Missing Quantity      |                   316 |                          0 |
+| Missing Gender        |                   790 |                          0 |
+| Missing Age           |                   497 |                          0 |
+| Missing City          |                   940 |                          0 |
+| Missing State         |                   497 |                          0 |
+| Missing Customer_Name |                   497 |                          0 |
+| Missing Unit_Price    |                   790 |                          0 |
+| Missing Product       |                   175 |                          0 |
+| Missing Category      |                   175 |                          0 |
+| Missing Brand         |                   175 |                          0 |
+| Missing Join_Date     |                   497 |                        492 |
+| Missing Order_Date    | 0 *(invalid strings)* | 2,556 *(converted to NaT)* |
+
+> **Note:** Invalid `Order_Date` values were converted to `NaT` using `errors="coerce"`. These records were intentionally retained because they still contained meaningful customer and sales information for non-time-based analysis.
 
 ---
 
-## Data Cleaning Workflow
+# Project Workflow
 
-### 1. Data Integration
+## 1. Data Integration
 
-* Loaded three Excel datasets using Pandas.
-* Merged datasets with `pd.merge()` to create a unified sales table.
+Merged three relational datasets using **Pandas `merge()`**.
 
-### 2. Data Profiling
+* Orders + Customers
+* Result + Products
 
-Performed an initial assessment using:
+---
+
+## 2. Data Profiling
+
+Performed initial data assessment using:
 
 * `head()`
 * `info()`
@@ -47,70 +74,100 @@ Performed an initial assessment using:
 * `isnull()`
 * `duplicated()`
 
-### 3. Missing Value Analysis
+---
 
-Calculated missing value percentages for every column to identify data quality issues before cleaning.
+## 3. Missing Value Analysis
 
-### 4. Date Standardization
+Calculated missing value counts and percentages to identify data quality issues before cleaning.
 
-Converted mixed-format date columns into datetime format using:
+---
 
-* `Order_Date`
-* `Join_Date`
+## 4. Date Conversion
 
-Invalid or unreadable dates were converted to `NaT` using `errors="coerce"`.
+Converted mixed-format date columns into datetime format.
 
-### 5. Text Standardization
+Columns cleaned:
 
-Cleaned inconsistent categorical values by:
+* Order_Date
+* Join_Date
+
+Used:
+
+* `pd.to_datetime()`
+* `errors="coerce"`
+* `format="mixed"`
+
+---
+
+## 5. Text Standardization
+
+Standardized inconsistent categorical values by:
 
 * Removing leading/trailing spaces
-* Standardizing payment modes
-* Standardizing gender values
+* Standardizing Payment_Mode
+* Standardizing Gender values
 
-### 6. Business Rule Validation
+---
 
-Applied validation rules to improve data quality:
+## 6. Data Validation
 
-* Valid Age: **18–100**
+Applied business validation rules.
+
+### Age
+
+* Valid range: **18–100**
+
+### Quantity
+
 * Quantity must be **greater than or equal to 0**
 
-Invalid values were replaced with `NaN` before imputation.
+Invalid values were replaced with `NaN`.
 
-### 7. Missing Value Treatment
+---
 
-Applied different strategies based on data type.
+## 7. Missing Value Treatment
 
-**Numerical Columns**
+### Numerical Columns
 
 * Median imputation for Age
 * Median imputation for Quantity
 
-**Categorical Columns**
+### Categorical Columns
 
-* Filled missing Customer_ID with `"Unknown"`
-* Filled missing Customer_Name with `"Unknown"`
-* Filled missing City with `"Unknown"`
-* Filled missing State with `"Unknown"`
-* Filled missing Gender with `"Unknown"`
+Filled missing values with **"Unknown"**
 
-**Product Price**
+* Customer_ID
+* Customer_Name
+* City
+* State
+* Gender
 
-* Filled missing `Unit_Price` using **product-level median imputation** with `groupby()` and `transform()`.
+### Product-Level Imputation
 
-### 8. Record Filtering
+Filled missing **Unit_Price** using the median price of each product.
 
-Rows with missing `Product_ID` were removed because product information (Product, Category, Brand, and Unit Price) could not be recovered after merging.
+Implemented using:
 
-Rows with missing `Order_Date` were intentionally retained because they still contained meaningful customer, product, and transaction information useful for non-time-based analysis.
-
-### 9. Export
-
-Exported the cleaned dataset to Excel for further analysis.
+* `groupby()`
+* `transform()`
 
 ---
 
-## Pandas Functions Used
+## 8. Record Filtering
+
+Rows with missing **Product_ID** were removed because product information (Product, Category, Brand, and Unit Price) could not be recovered after merging.
+
+Rows with missing **Order_Date** were retained because they still contained valid transactional information useful for product, customer, and revenue analysis.
+
+---
+
+## 9. Export
+
+Exported the cleaned dataset to Excel.
+
+---
+
+# Pandas Functions Used
 
 * `read_excel()`
 * `merge()`
@@ -133,22 +190,27 @@ Exported the cleaned dataset to Excel for further analysis.
 
 ---
 
-## Project Summary
+# NumPy Functions Used
 
-* Merged **3 relational datasets** into a unified retail sales dataset.
-* Processed **10,000 raw records**.
-* Delivered a cleaned dataset containing **9,825 records**.
-* Standardized date and categorical fields.
-* Validated business rules for numerical data.
-* Applied median, product-level, and categorical imputation techniques.
-* Preserved valuable transaction records while removing unrecoverable product records.
-* Exported an analysis-ready dataset for reporting and visualization.
+* `np.nan`
 
 ---
 
-## Repository Structure
+# Key Achievements
 
-```
+* Merged **3 relational datasets** into a unified retail sales dataset.
+* Processed **10,000 raw records** across **16 business attributes**.
+* Removed **175 unrecoverable records** with missing Product_ID.
+* Standardized date formats and categorical values.
+* Applied business validation rules for Age and Quantity.
+* Resolved missing values using median, product-level, and categorical imputation techniques.
+* Exported a clean dataset containing **9,825 records** for downstream analytics.
+
+---
+
+# Repository Structure
+
+```text
 Retail Sales Analysis/
 │
 ├── Customers.xlsx
@@ -161,18 +223,26 @@ Retail Sales Analysis/
 
 ---
 
-## Future Improvements
+# Tech Stack
 
-* Exploratory Data Analysis (EDA)
-* SQL-based business analysis
-* Power BI dashboard
-* Customer segmentation
-* Sales trend analysis
-* Product performance analysis
+* Python
+* Pandas
+* NumPy
+* Microsoft Excel
 
 ---
 
-## Author
+# Future Enhancements
+
+* Exploratory Data Analysis (EDA)
+* SQL-based Business Analysis
+* Power BI Dashboard
+* Customer Segmentation
+* Sales Trend Analysis
+
+---
+
+# Author
 
 **Rahul R Tiwari**
 
